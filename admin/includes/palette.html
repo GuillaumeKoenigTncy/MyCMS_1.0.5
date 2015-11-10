@@ -1,0 +1,533 @@
+<script type="text/javascript">
+	var clic=false; 
+	//Cette variable nous indique si l'utilisateur clique sur la barre.
+	
+	var clic2=false;
+	//Cette variable nous indique si l'utilisateur clique sur le carré.
+	
+	var r=255,g=0,b=0;
+	//Variables qui stockeront la couleur en rgb.
+	
+	var r_1=255,g_1=0,b_1=0;
+	// Variables secondaires rgb.
+	
+	var blanc=0,noir=1;
+	// Le pourcentage de noir et de blanc entre 0 et 1 appliqué à la couleur (ici pour le noir 1 signifie qu'il n'y en aura pas et 0 totalement : c'est l'inverse)
+	
+	var x=360,y=20;
+	//position initiale de curseur2 (dans le carré).
+	
+	function clique(objet)//cela permet de savoir si l'utilisateur clique sur le carré ou la barre
+	{
+		
+		if(objet=="barre") // si l'utilisateur clique sur la barre ...
+		{ 
+			clic=true; // ...alors on met true (vrai) à clic
+		}
+		else // sinon l'utilisateur clique sur le carré ...
+		{ 
+			clic2=true; // ...alors on met true (vrai) à clic2
+		}
+		
+	} 
+	
+	function position(axe,event)
+	{
+		// event contient les évènements de la page (on s'en sert pour la position du curseur)
+		
+		var e = event || window.event; 
+		// on copie les évènements dans e : il y a des manières différentes de récuperer les évenements selon le navigateur
+		
+		if(axe=="x") //si on demande x
+		{
+			var rep=e.clientX; // position x de la souris.
+		}
+		else // sinon y 
+		{
+			var rep=e.clientY; // position y de la souris.
+		}
+		
+		return rep;
+		// on renvoie la valeur de rep.
+		
+	}
+	
+	document.onmousemove=calcul; 
+	// lorsque la souris bouge n'importe où dans le document on appelle la fonction calcul.
+	
+	document.onmousedown=calcul; 
+	// lorsque la souris clique n'importe où dans le document on appelle la fonction calcul.
+	
+	document.onmouseup=function() { clic=false;clic2=false; }
+	// si l'utilisateur relâche le bouton de la souris alors les variables clic et clic2 redeviennent fausses (false).
+	
+	
+	function calcul(event) // event contient les évènements de la page (on s'en sert pour la position du curseur).
+	{
+		
+		if(clic && position('y',event)<=320 && position('y',event)>=20) // on appelle position() pour connaitre la position de la souris.
+		{
+			document.getElementById("curseur1").style.top=position('y',event)-7;
+			//on change la position du curseur (top) en même temps que la souris.
+			
+			
+			// c'est à partir d'ici qu'on regarde sur qu'elle sixième la souris se trouve.
+			
+			if((position('y',event)-20)<=50) // 1/6 (50px)
+			{
+				
+				r=255;
+				g=0;
+				b=Math.round((position('y',event)-20)*255/50);
+				
+			}
+			else if((position('y',event)-20)<=100) // 2/6 (100px)
+			{
+				
+				r=Math.round(255-((position('y',event)-70)*255/50));
+				g=0;
+				b=255;
+				
+			}
+			else if((position('y',event)-20)<=150) // 3/6 (150px)
+			{
+				
+				r=0;
+				g=Math.round((position('y',event)-120)*255/50);
+				b=255;
+				
+			}
+			else if((position('y',event)-20)<=200) // 4/6 (200px)
+			{
+				
+				r=0;
+				g=255;
+				b=Math.round(255-((position('y',event)-170)*255/50));
+				
+			}
+			else if((position('y',event)-20)<=250) // 5/6 (250px)
+			{
+				
+				r=Math.round((position('y',event)-220)*255/50);
+				g=255;
+				b=0;
+				
+			}
+			else if((position('y',event)-20)<=300) // 6/6 (300px)
+			{
+				
+				r=255;
+				g=Math.round(255-((position('y',event)-270)*255/50));
+				b=0;
+				
+			}
+			
+			document.getElementById("carre").style.backgroundColor="rgb("+r+","+g+","+b+")";
+			// On change la couleur du carré. On voit après (grâce à degrade n-b.png) le dégradé de la couleur vers le blanc et le noir.
+			
+			afficher(); // fonction qui permet d'afficher la couleur courante dans le 	rectangle (input text) 'resultat'.
+		}
+		
+		if(clic2) // si l'utilisateur clique sur le carré ...
+		{
+			
+			if(position('y',event)>20 && position('y',event)<320)
+			{ 
+				document.getElementById("curseur2").style.top=position('y',event)-10;
+				// on déplace curseur2 et on lui retire son milieu (comme pour curseur 1)
+				
+				y=position('y',event);
+			}
+			
+			if(position('x',event)>60 && position('x',event)<360)
+			{
+				document.getElementById("curseur2").style.left=position('x',event)-10;
+				// on déplace curseur2 et on lui retire son milieu (comme pour curseur 1)
+				
+				x=position('x',event);
+			}
+			
+			afficher(); // fonction qui permet d'afficher la couleur courante dans le 	rectangle (input text) 'resultat'.
+		}
+		
+	}
+	
+	
+	
+	function afficher()  // ici on gère l'affichage de la couleur
+	{ 
+		noir=Math.round( (x-60)*100/300)/100; 
+		// on calcul le pourcentage de noir appliqué à la couleur en divisant encore la position dans le carré par sa largeur(-60 car le carré commence à left:60px)
+		
+		blanc=Math.round((y-20)*100/300)/100; 
+		
+		r_1=Math.round((255-r)*blanc)+r;
+		g_1=Math.round((255-g)*blanc)+g;
+		b_1=Math.round((255-b)*blanc)+b;
+		
+		// on applique le noir aux 3 couleurs
+		r_1=Math.round(r_1*noir);
+		g_1=Math.round(g_1*noir);
+		b_1=Math.round(b_1*noir);
+		
+		r_hexa = hexadecimal( Math.floor(r_1 /16) ) + hexadecimal( r_1 % 16 );
+		g_hexa = hexadecimal( Math.floor(g_1 /16) ) + hexadecimal( g_1 % 16 );
+		b_hexa = hexadecimal( Math.floor(b_1 /16) ) + hexadecimal( b_1 % 16 );
+		
+		document.forms[0].resultat.value = "#" + r_hexa + g_hexa + b_hexa;
+		
+		//on applique la couleur rgb au champ resultat
+		document.getElementById('resultat').style.backgroundColor="rgb("+r_1+","+g_1+","+b_1+")";
+	}
+	
+	function afficher_aside(val)  // ici on gère l'affichage de la couleur
+	{ 
+		
+		document.forms[0].resultat.value = val;
+		
+		//on applique la couleur rgb au champ resultat
+		document.getElementById('resultat').style.backgroundColor=val;
+	}
+	
+	function enregistrer()  // 
+	{ 
+		
+		val=document.forms[0].resultat.value;
+		
+		//on applique la couleur rgb au champ resultat
+		document.getElementById('fave1').style.backgroundColor=val;
+	}
+	
+	function enregistrer2()  // 
+	{ 
+		
+		val=document.forms[0].resultat.value;
+		
+		//on applique la couleur rgb au champ resultat
+		document.getElementById('fave2').style.backgroundColor=val;
+	}
+	
+	function enregistrer3()  // 
+	{ 
+		
+		val=document.forms[0].resultat.value;
+		
+		//on applique la couleur rgb au champ resultat
+		document.getElementById('fave3').style.backgroundColor=val;
+	}
+	
+	function enregistrer4()  // 
+	{ 
+		
+		val=document.forms[0].resultat.value;
+		
+		//on applique la couleur rgb au champ resultat
+		document.getElementById('fave4').style.backgroundColor=val;
+	}
+	
+	function enregistrer5()  // 
+	{ 
+		
+		val=document.forms[0].resultat.value;
+		
+		//on applique la couleur rgb au champ resultat
+		document.getElementById('fave5').style.backgroundColor=val;
+	}
+	
+	function enregistrer6()  // 
+	{ 
+		
+		val=document.forms[0].resultat.value;
+		
+		//on applique la couleur rgb au champ resultat
+		document.getElementById('fave6').style.backgroundColor=val;
+	}
+	function valider()
+	{
+		
+		//on fait appel à une fonction dans la page principale pour transmettre le contenu de resultat.
+		window.opener.valid_couleur(document.forms[0].resultat.value);
+		
+		window.close();
+		//on ferme la palette
+	}
+	
+	function hexadecimal(nombre)
+	{
+		
+		if(nombre < 10)
+		{
+			return nombre.toString(); // le nombre en chaine de caractères.
+		}
+		else
+		{
+			switch (nombre)
+			{
+				case 10:
+				return "A";
+				break;
+				case 11:
+				return "B";
+				break;
+				case 12:
+				return "C";
+				break;
+				case 13:
+				return "D";
+				break;
+				case 14:
+				return "E";
+				break;
+				case 15:
+				return "F";
+				break;
+			}
+		}
+		
+	}
+	
+	
+	
+	
+	function chargement_termine(){
+		document.getElementById("barre").style.visibility="visible";
+		document.getElementById("curseur1").style.visibility="visible";
+		document.getElementById("curseur2").style.visibility="visible";
+		document.getElementById("carre").style.visibility="visible";
+		document.forms[0].resultat.value="#FF0000";
+		document.getElementById("bouton_valid").removeAttribute("disabled");
+		
+	}
+</script>
+
+<style type="text/css">
+	.skin_barre  /* on reprend le nom qu'on a mis dans 'class=' */
+	{
+	visibility:hidden;
+	width:30px;
+	height:300px;
+	/* on définit la taille du div (celle de l'image) */
+	
+	top:20px;
+	left:23px;
+	/* et sa position initiale */
+	
+	position:absolute;
+	/* le div n'est plus fixe mais libre */
+	
+	background-image:url('palette/degrade.jpg');
+	/* on définit ici l'image à afficher dans le div */
+	
+	cursor:s-resize;
+	/* et enfin on définit le curseur à afficher lorsque la souris passe sur ce div */
+	}
+	
+	/* =====  de même pour les autres  ===== */
+	
+	.skin_curseur1
+	{
+	visibility:hidden;
+	width:45px;
+	height:15px;
+	position:absolute;
+	top:12px;
+	left:15px;
+	cursor:s-resize;
+	background-image:url('palette/curseur1.png');
+	}
+	
+	.skin_carre
+	{
+	visibility:hidden;
+	width:300px;
+	height:300px;
+	position:absolute;
+	top:20px;left:60px;
+	cursor:move;
+	background-color:red;  /* on définit la couleur initiale du carré */
+	background-image:url('palette/degrade n-b.png');
+	}
+	
+	.skin_curseur2
+	{
+	visibility:hidden;
+	width:20px;
+	height:20px;
+	position:absolute;
+	top:10px;
+	left:350px;
+	cursor:move;
+	background-image:url('palette/curseur2.png');
+	}
+	
+	.skin_resultat
+	{
+	position:absolute;
+	top:330px;
+	left:60px;
+	border:1px solid black; /* dessine un cadre autour du 'input' noir et d'un pixel d'épaisseur */
+	background-color:red;
+	text-align:center;  /* on aligne le texte au centre */
+	}
+	
+	.skin_bouton_OK
+	{
+	position:absolute;
+	top:330px;
+	left:220px;
+	}
+	
+	.skin_bouton_save
+	{
+	position:absolute;
+	top:495px;
+	left:8px;
+	background-image:url('palette/save.png');
+	height:32px;
+	width:32px;
+	}
+	
+	.skin_bouton_save2
+	{
+	position:absolute;
+	top:495px;
+	left:58px;
+	background-image:url('palette/save.png');
+	height:32px;
+	width:32px;
+	}
+	
+	.skin_bouton_save3
+	{
+	position:absolute;
+	top:495px;
+	left:110px;
+	background-image:url('palette/save.png');
+	height:32px;
+	width:32px;
+	}
+	
+	
+	.skin_bouton_save4
+	{
+	position:absolute;
+	top:495px;
+	left:160px;
+	background-image:url('palette/save.png');
+	height:32px;
+	width:32px;
+	}
+	
+	.skin_bouton_save5
+	{
+	position:absolute;
+	top:495px;
+	left:210px;
+	background-image:url('palette/save.png');
+	height:32px;
+	width:32px;
+	}
+	
+	.skin_bouton_save6
+	{
+	position:absolute;
+	top:495px;
+	left:263px;
+	background-image:url('palette/save.png');
+	height:32px;
+	width:32px;
+	}
+	h3{
+	position:absolute;
+	top:400px;
+	
+	}
+	
+	aside{
+	position:absolute;
+	}
+	aside.gauche{
+	left:400px;
+	}
+	aside.droite{
+	left:500px;
+	}
+	aside.perso{
+	top:460px;
+	}
+	
+	a{
+	display:block;
+	}
+	.perso{
+	display:inline-block;
+	}
+	.espace{
+	border: 1px solid black;
+	height:30px;
+	width:30px;
+	}
+	
+	.rond{
+	height:30px;
+	width:30px;
+	border: 1px solid #000000;
+	border-radius:100px 100px 100px 100px;
+	margin-right:15px;
+	}
+</style>
+
+<body onload="chargement_termine()">
+	
+	<div id="barre"    class="skin_barre"    onmousedown="clique('barre')"></div>
+	<div id="curseur1" class="skin_curseur1" onmousedown="clique('barre')"></div>
+	<div id="carre"    class="skin_carre"    onmousedown="clique('carre')"></div>
+	<div id="curseur2" class="skin_curseur2" onmousedown="clique('carre')"></div>
+	
+	<form>
+		<input type="text" id="resultat" class="skin_resultat" size=20 name="affichage_couleur" value="Chargement ..." />
+		<input type="button" value=" OK " onclick="valider()" class="skin_bouton_OK" id="bouton_valid" disabled />
+		<input type="button"  onclick="enregistrer()" class="skin_bouton_save" id="bouton_valid"  />
+		<input type="button"  onclick="enregistrer2()" class="skin_bouton_save2" id="bouton_valid"  />
+		<input type="button"  onclick="enregistrer3()" class="skin_bouton_save3" id="bouton_valid"  />
+		<input type="button"  onclick="enregistrer4()" class="skin_bouton_save4" id="bouton_valid"  />
+		<input type="button"  onclick="enregistrer5()" class="skin_bouton_save5" id="bouton_valid" />
+		<input type="button"  onclick="enregistrer6()" class="skin_bouton_save6" id="bouton_valid" />
+	</form>
+	<aside class="gauche">
+		
+		<a href="#"><div class="espace" style="background-color:#000000;" onClick="afficher_aside('#000000');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#ED1C24;" onClick="afficher_aside('#ED1C24');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#EFE4B0;" onClick="afficher_aside('#EFE4B0');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#00FF00;" onClick="afficher_aside('#00FF00');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#B5E61D;" onClick="afficher_aside('#B5E61D');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#00FFFF;" onClick="afficher_aside('#00FFFF');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#0000FF;" onClick="afficher_aside('#0000FF');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#00A2E8;" onClick="afficher_aside('#00A2E8');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#FFAEC9;" onClick="afficher_aside('#FFAEC9');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#FF00FF;" onClick="afficher_aside('#FF00FF');"></div></a>
+	</aside>
+	<aside class="droite"> 
+		<a href="#"><div class="espace" style="background-color:#FFFFFF;" onClick="afficher_aside('#FFFFFF');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#FFFF00;" onClick="afficher_aside('#FFFF00');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#FF7F27;" onClick="afficher_aside('#FF7F27');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#7F7F7F;" onClick="afficher_aside('#7F7F7F');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#C9C9C9;" onClick="afficher_aside('#C9C9C9');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#FFC90E;" onClick="afficher_aside('#FFC90E');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#9400D3;" onClick="afficher_aside('#9400D3');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#622662;" onClick="afficher_aside('#622662');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#B97A57;" onClick="afficher_aside('#B97A57');"></div></a>
+		<a href="#"><div class="espace" style="background-color:#00006C;" onClick="afficher_aside('#00006C');"></div></a>
+		
+	</aside>
+	<h3>Mes couleurs</h3>
+	<aside class="perso">
+		<a  class="perso" href="#"><div class="rond" style="background-color:#FFFFFF;" onClick="afficher_aside('#FFFFFF');" id="fave1"></div></a>
+		<a  class="perso" href="#"><div class="rond" style="background-color:#FFFFFF;" onClick="afficher_aside('#FFFFFF');"id="fave2"></div></a>
+		<a class="perso" href="#"><div class="rond" style="background-color:#FFFFFF;" onClick="afficher_aside('#FFFFFF');"id="fave3"></div></a>
+		<a class="perso" href="#"><div class="rond" style="background-color:#FFFFFF;" onClick="afficher_aside('#FFFFFF');"id="fave4"></div></a>
+		<a class="perso" href="#"><div class="rond" style="background-color:#FFFFFF;" onClick="afficher_aside('#FFFFFF');"id="fave5"></div></a>
+		<a class="perso" href="#"><div class="rond" style="background-color:#FFFFFF;" onClick="afficher_aside('#FFFFFF');"id="fave6"></div></a>
+	</aside>
+	
+</body>
